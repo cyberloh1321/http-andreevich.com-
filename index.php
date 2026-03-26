@@ -10,7 +10,7 @@
     <div class="form-container">
         <h2>Регистрация</h2>
         
-        <form action="action.php" method="POST">
+        <form action="/action.php" method="post">
             <div class="form-group">
                 <label for="name">Имя:</label>
                 <input 
@@ -44,16 +44,6 @@
                 >
             </div>
 
-            <div class="form-group">
-                <label for="confirm_password">Подтвердите пароль:</label>
-                <input 
-                    type="password" 
-                    id="confirm_password" 
-                    name="confirm_password" 
-                    placeholder="Повторите пароль"
-                    required
-                >
-            </div>
  <div class="form-group div1">
                 <label class="t" for="gender" >Мужской  </label>
 		<input type="radio" id="gender" name="gender">
