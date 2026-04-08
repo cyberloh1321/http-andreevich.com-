@@ -23,4 +23,21 @@ unlink('world.txt');
 
 echo "world.txt существует: " . (file_exists('world.txt') ? 'Да' : 'Нет') . "\n";
 echo "mir.txt существует: " . (file_exists('folder/mir.txt') ? 'Да' : 'Нет') . "\n";
+
+
+mkdir('test');
+
+rename('test', 'www');
+
+rmdir('www');
+
+mkdir('test');
+$names = ['docs', 'images', 'backup'];
+foreach ($names as $n) {
+    mkdir("test/$n");
+}
+
+foreach (glob('*.jpg') as $file) {
+    echo $file . "\n";
+}
 ?>
