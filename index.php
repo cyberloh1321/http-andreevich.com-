@@ -2,147 +2,89 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Задачи по массивам PHP</title>
+    <title>Калькулятор</title>
     <style>
-        body { font-family: sans-serif; line-height: 1.6; }
-        .task { border-bottom: 1px solid #ccc; padding: 10px 0; }
-        .result { background: #f4f4f4; padding: 10px; border-radius: 5px; font-family: monospace; }
-        h3 { margin-bottom: 5px; color: #333; }
+        body { font-family: sans-serif; padding: 20px; }
+        .result { margin-top: 15px; padding: 10px; border-radius: 5px; }
+        .error { background-color: #ffebee; color: #c62828; }
+        .success { background-color: #e8f5e9; color: #2e7d32; }
     </style>
 </head>
 <body>
 
-<h1>Решение задач по массивам</h1>
+    <h2>Простой калькулятор</h2>
+    
+    <form method="POST" action="">
+        <input type="number" name="num1" step="any" placeholder="Первое число" required>
+        <input type="number" name="num2" step="any" placeholder="Второе число" required>
+        <br><br>
+        <!-- Атрибут name одинаковый у всех кнопок, value разный -->
+        <button type="submit" name="operation" value="add">Сложить</button>
+        <button type="submit" name="operation" value="sub">Вычесть</button>
+        <button type="submit" name="operation" value="mul">Умножить</button>
+        <button type="submit" name="operation" value="div">Разделить</button>
+    </form>
 
-<?php
-// 1. array_map: перевод в верхний регистр
-$arr1 = ['a', 'b', 'c', 'd', 'e'];
-$res1 = array_map('strtoupper', $arr1);
-?>
-<div class="task">
-    <h3>1. array_map: ['a', 'b', 'c', 'd', 'e'] -> ['A', 'B', 'C', 'D', 'E']</h3>
-    <div class="result"><?php print_r($res1); ?></div>
-</div>
+    <!-- Результат выводится после формы -->
+    <?php
+    $output = '';
 
-<?php
-// 2. count: вывод последнего элемента
-$arr2 = ['apple', 'banana', 'cherry'];
-$lastElement = $arr2[count($arr2) - 1];
-?>
-<div class="task">
-    <h3>2. Последний элемент через count</h3>
-    <div class="result"><?php echo $lastElement; ?></div>
-</div>
+    // Проверяем, что запрос был отправлен методом POST
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        
+        // Проверяем, была ли передана выбранная операция
+        if (isset($_POST['operation'])) {
+            $num1 = $_POST['num1'] ?? '';
+            $num2 = $_POST['num2'] ?? '';
+            $op   = $_POST['operation'];
 
-<?php
-// 3. Проверка наличия элемента 3
-$arr3 = [1, 5, 3, 9];
-$hasThree = in_array(3, $arr3) ? 'Есть элемент 3' : 'Элемента 3 нет';
-?>
-<div class="task">
-    <h3>3. Проверка наличия элемента 3</h3>
-    <div class="result"><?php echo $hasThree; ?></div>
-</div>
+            // 1. Базовая валидация
+            if ($num1 === '' || $num2 === '') {
+                $output = '<div class="result error">⚠️ Пожалуйста, заполните оба поля.</div>';
+            } elseif (!is_numeric($num1) || !is_numeric($num2)) {
+                $output = '<div class="result error">⚠️ Разрешено вводить только числа.</div>';
+            } else {
+                $a = (float)$num1;
+                $b = (float)$num2;
+                $result = 0;
 
-<?php
-// 4. Объединение двух массивов
-$arr4_1 = [1, 2, 3];
-$arr4_2 = ['a', 'b', 'c'];
-$res4 = array_merge($arr4_1, $arr4_2);
-?>
-<div class="task">
-    <h3>4. Объединение массивов [1, 2, 3] и ['a', 'b', 'c']</h3>
-    <div class="result"><?php print_r($res4); ?></div>
-</div>
+                // 2. Выполнение вычислений
+                switch ($op) {
+                    case 'add':
+                        $result = $a + $b;
+                        break;
+                    case 'sub':
+                        $result = $a - $b;
+                        break;
+                    case 'mul':
+                        $result = $a * $b;
+                        break;
+                    case 'div':
+                        // 3. Обработка крайнего случая: деление на 0
+                        if ($b == 0) {
+                            $output = '<div class="result error">❌ Ошибка: деление на ноль невозможно!</div>';
+                            $result = null;
+                        } else {
+                            $result = $a / $b;
+                        }
+                        break;
+                    default:
+                        $output = '<div class="result error">⚠️ Неизвестная операция.</div>';
+                        $result = null;
+                }
 
-<?php
-// 5. array_slice: элементы 2, 3, 4
-$arr5 = [1, 2, 3, 4, 5];
-$res5 = array_slice($arr5, 1, 3); // начиная с индекса 1, длина 3
-?>
-<div class="task">
-    <h3>5. array_slice: получить [2, 3, 4]</h3>
-    <div class="result"><?php print_r($res5); ?></div>
-</div>
+                // Вывод результата, если ошибок не было
+                if ($result !== null) {
+                    // htmlspecialchars защищает от XSS при выводе
+                    $safeResult = htmlspecialchars($result);
+                    $output = "<div class='result success'>✅ Результат: {$safeResult}</div>";
+                }
+            }
+        }
+    }
 
-<?php
-// 6. Ключи и значения
-$arr6 = ['a'=>1, 'b'=>2, 'c'=>3];
-$keys = array_keys($arr6);
-$values = array_values($arr6);
-?>
-<div class="task">
-    <h3>6. Ключи и значения массива</h3>
-    <div class="result">
-        Keys: <?php print_r($keys); ?><br>
-        Values: <?php print_r($values); ?>
-    </div>
-</div>
-
-<?php
-// 7. array_combine: создание ассоциативного массива
-$keys7 = ['a', 'b', 'c'];
-$values7 = [1, 2, 3];
-$res7 = array_combine($keys7, $values7);
-?>
-<div class="task">
-    <h3>7. array_combine: ['a'=>1, 'b'=>2, 'c'=>3']</h3>
-    <div class="result"><?php print_r($res7); ?></div>
-</div>
-
-<?php
-// 8. Поиск позиции первого '-'
-$arr8 = ['a', '-', 'b', '-', 'c', '-', 'd'];
-$pos = array_search('-', $arr8);
-?>
-<div class="task">
-    <h3>8. Позиция первого элемента '-'</h3>
-    <div class="result">Индекс: <?php echo $pos; ?></div>
-</div>
-
-<?php
-// 9. Сортировки
-$arr9 = ['3'=>'a', '1'=>'c', '2'=>'e', '4'=>'b'];
-$arr9_ksort = $arr9; ksort($arr9_ksort); // по ключам
-$arr9_asort = $arr9; asort($arr9_asort); // по значениям
-?>
-<div class="task">
-    <h3>9. Различные сортировки</h3>
-    <div class="result">
-        ksort (по ключам): <?php print_r($arr9_ksort); ?><br>
-        asort (по значениям): <?php print_r($arr9_asort); ?>
-    </div>
-</div>
-
-<?php
-// 10. Сумма цифр строки без цикла
-$str10 = '1234567890';
-$sum10 = array_sum(str_split($str10));
-?>
-<div class="task">
-    <h3>10. Сумма цифр строки '1234567890' без цикла</h3>
-    <div class="result">Сумма: <?php echo $sum10; ?></div>
-</div>
-
-<?php
-// 11. Заполнение массива буквами 'x'
-$res11 = array_fill(0, 10, 'x');
-?>
-<div class="task">
-    <h3>11. Массив из 10 букв 'x'</h3>
-    <div class="result"><?php print_r($res11); ?></div>
-</div>
-
-<?php
-// 12. Общие элементы двух массивов (задача была обрезана, логически завершено как пересечение)
-$arr12_1 = [1, 2, 3, 4, 5];
-$arr12_2 = [3, 4, 5, 6, 7];
-$res12 = array_intersect($arr12_1, $arr12_2);
-?>
-<div class="task">
-    <h3>12. Общие элементы массивов (array_intersect)</h3>
-    <div class="result"><?php print_r($res12); ?></div>
-</div>
+    echo $output;
+    ?>
 
 </body>
 </html>
