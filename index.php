@@ -1,65 +1,107 @@
 <?php
 
-class Worker {
-    public $name;
-    public $salary;
-    private $age; // скрытое свойство
+// 1) Абстрактный класс Figure с требуемыми свойствами
+abstract class Figure {
+    protected $area;
+    protected $color;
+    protected $sidesCount;
 
-    // Конструктор для установки свойств при создании объекта
-    public function __construct($name, $age, $salary) {
-        $this->name = $name;
-        $this->age = $age;
-        $this->salary = $salary;
+    // 2) Абстрактный метод infoAbout()
+    abstract public function infoAbout(): string;
+}
+
+// 4) Интерфейс с методом getArea()
+interface AreaInterface {
+    public function getArea(): float;
+}
+
+// 3, 4, 7, 8) Класс Rectangle
+class Rectangle extends Figure implements AreaInterface {
+    private $a;
+    private $b;
+    const SIDES_COUNT = 4; // 7) Количество сторон
+
+    public function __construct($a, $b, $color = 'blue') {
+        $this->a = $a;
+        $this->b = $b;
+        $this->color = $color;
+        $this->sidesCount = self::SIDES_COUNT;
     }
 
-    // Геттеры
-    public function getName() { return $this->name; }
-    public function getAge()  { return $this->age; }
-    public function getSalary() { return $this->salary; }
-
-    // Метод для суммы зарплат (в PHP статический, т.к. работает с двумя объектами)
-    public static function getSalarySum(Worker $w1, Worker $w2) {
-        return $w1->salary + $w2->salary;
+    // 9) Подсчет площади
+    public function getArea(): float {
+        $this->area = $this->a * $this->b;
+        return $this->area;
     }
 
-    // Приватная проверка возраста (по последнему требованию)
-    private function checkAge($newAge) {
-        return $newAge >= 18;
-    }
-
-    // Открытый сеттер, который использует приватную проверку
-    public function setAge($newAge) {
-        if ($this->checkAge($newAge)) {
-            $this->age = $newAge;
-            echo "✅ Возраст успешно изменен на {$this->age}\n";
-        } else {
-            echo "❌ Вам работать в нашей компании еще рано\n";
-        }
+    // 10) Информация о фигуре
+    public function infoAbout(): string {
+        return "Это класс прямоугольника. У него " . self::SIDES_COUNT . " стороны.";
     }
 }
 
-// === 1. Создание объектов и установка свойств ===
-$worker1 = new Worker("Алексей", 25, 50000);
-$worker2 = new Worker("Мария", 17, 40000);
+// 3, 5, 7, 8) Класс Square
+class Square extends Figure implements AreaInterface {
+    private $a;
+    const SIDES_COUNT = 4;
 
-// === 2. Вывод суммы зарплат и возрастов ===
-echo "Сумма зарплат: " . ($worker1->salary + $worker2->salary) . "\n";
-echo "Сумма возрастов: " . ($worker1->getAge() + $worker2->getAge()) . "\n\n";
+    public function __construct($a, $color = 'red') {
+        $this->a = $a;
+        $this->color = $color;
+        $this->sidesCount = self::SIDES_COUNT;
+    }
 
-// === 3. Вывод работы геттеров ===
-echo "getName: " . $worker1->getName() . "\n";
-echo "getAge: " . $worker2->getAge() . "\n";
-echo "getSalary: " . $worker1->getSalary() . "\n\n";
+    public function getArea(): float {
+        $this->area = $this->a * $this->a;
+        return $this->area;
+    }
 
-// === 4. Вывод суммы через метод ===
-echo "Сумма зарплат через метод: " . Worker::getSalarySum($worker1, $worker2) . "\n\n";
+    public function infoAbout(): string {
+        return "Это класс квадрата. У него 4 стороны.";
+    }
+}
 
-// === 5. Тест setAge и приватного checkAge ===
-echo "Попытка установить 16 лет: ";
-$worker2->setAge(16);
+// 3, 6, 7, 8) Класс Triangle
+class Triangle extends Figure implements AreaInterface {
+    private $a;
+    private $b;
+    private $c;
+    const SIDES_COUNT = 3;
 
-echo "Попытка установить 20 лет: ";
-$worker2->setAge(20);
+    public function __construct($a, $b, $c, $color = 'green') {
+        $this->a = $a;
+        $this->b = $b;
+        $this->c = $c;
+        $this->color = $color;
+        $this->sidesCount = self::SIDES_COUNT;
+    }
 
-echo "\nИтоговый возраст Марии: " . $worker2->getAge() . "\n";
+    public function getArea(): float {
+        $p = ($this->a + $this->b + $this->c) / 2; // Полупериметр
+        $this->area = sqrt($p * ($p - $this->a) * ($p - $this->b) * ($p - $this->c)); // Формула Герона
+        return $this->area;
+    }
+
+    public function infoAbout(): string {
+        return "Это класс треугольника. У него 3 стороны.";
+    }
+}
+
+// 11) Создаем по 2 объекта для каждого класса
+$rect1 = new Rectangle(5, 10);
+$rect2 = new Rectangle(3, 7);
+
+$sq1 = new Square(4);
+$sq2 = new Square(6);
+
+$tri1 = new Triangle(3, 4, 5);
+$tri2 = new Triangle(5, 5, 5);
+
+// 12) Вызываем методы и выводим результаты
+$figures = [$rect1, $rect2, $sq1, $sq2, $tri1, $tri2];
+
+foreach ($figures as $fig) {
+    echo $fig->infoAbout() . "\n";
+    echo "Площадь: " . $fig->getArea() . "\n\n";
+}
 ?>
